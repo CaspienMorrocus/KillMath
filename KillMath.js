@@ -11,14 +11,13 @@ kaboom({
 setBackground(0, 0, 0);
 
 const assetScale = Math.min(width() / 800, height() / 600);
-loadRoot("./")
+loadRoot("./");
 
 // Load sprites
 loadSprite("BackGround", "Assets/background.png");
 loadSprite("Table", "Assets/Table.png");
 loadSprite("Gopal", "Assets/Gopal.png");
 loadSprite("Tansra", "Assets/Tansra.png");
-
 
 let table; // Declare table globally
 
@@ -31,19 +30,36 @@ scene("main", () => {
         pos(width() / 2, height() / 2)
     ]);
 
-    // First, add the table at a temporary position
-    table = add([
-        sprite("Table"),
-        anchor("center"),
-        scale(assetScale * 0.2),
-        pos(0, 0) // Temporary position
-    ]);
+    // Add table function that calculates its position consistently
+    function addTable(x, y) {
+        table = add([
+            "table",
+            sprite("Table"),
+            anchor("center"),
+            scale(assetScale * 0.2), // Adjust scale here
+            area() // To make the table interactable (optional)
+        ]);
+    
+        // Calculate position based on screen size for consistent results
+        table.pos = vec2(
+            (width() / 2) + x, // Adjusted to center + offset
+            (height() / 2) + y  // Adjusted to center + offset
+        );
+    }
 
-    // Now that table exists, we can correctly position it
-    table.pos = vec2(
-        bg.pos.x - (bg.width * bg.scale.x) / 2 + (table.width * table.scale.x) / 2, // Left edge of BG + half table width
-        bg.pos.y + (bg.height * bg.scale.y) / 2 - (table.height * table.scale.y) / 2 // Bottom edge of BG - half table height
-    );
+    // Add two tables with specific offsets
+    addTable(-200, 0);
+    addTable(-200, 100);
+
+    // Capture mouse clicks and log coordinates
+    add([
+        "gopal",
+        sprite("Gopal"),
+        anchor("center"),
+        pos(width()/2, height()/2 - 160),
+        scale(5),
+        area()
+    ])
 });
 
 // Start the game with the main scene
