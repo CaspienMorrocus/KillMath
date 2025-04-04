@@ -11,10 +11,14 @@ kaboom({
 setBackground(0, 0, 0);
 
 const assetScale = Math.min(width() / 800, height() / 600);
+loadRoot("./")
 
 // Load sprites
-loadSprite("BackGround", "background.png");
-loadSprite("Table", "Table.png");
+loadSprite("BackGround", "Assets/background.png");
+loadSprite("Table", "Assets/Table.png");
+loadSprite("Gopal", "Assets/Gopal.png");
+loadSprite("Tansra", "Assets/Tansra.png");
+
 
 let table; // Declare table globally
 
