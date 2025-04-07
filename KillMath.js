@@ -20,7 +20,7 @@ loadSprite("G", "Assets/G.png");
 loadSprite("T", "Assets/T.png");
 loadSprite("Ata", "Assets/Ata.png");
 loadSound("bgMusic", "bgMusic.mp3")
-
+loadSound("sMusic", "sMusic.mp3") 
 // Define the main scene
 scene("main", () => {
     const music = play("bgMusic", {
@@ -125,8 +125,10 @@ scene("main", () => {
         // Horizontal movement
         if (isKeyDown("left") || isKeyDown("a")) {
             p.move(directions.left.scale(SPEED)); // Move left
+            p.flipX = false; // Ensure the sprite is facing left
         } else if (isKeyDown("right") || isKeyDown("d")) {
             p.move(directions.right.scale(SPEED)); // Move right
+            p.flipX = true; // Flip the sprite to face right
         }
 
         // Vertical movement
@@ -170,7 +172,7 @@ scene("gameover", () => {
     add([
         text('Game Over', 16),
         anchor("center"),
-        pos(width() / 2, height() / 2)
+        pos(width() / 2, height() / 2 - 50)
     ]);
     add([
         text('Press the space key to start over', 10, {
@@ -183,9 +185,39 @@ scene("gameover", () => {
     // Continuously check for the space key press
     onUpdate(() => {
         if (isKeyPressed("space")) {
+            go("start");  // Go back to the main scene
+        }
+    });
+});
+scene("start", () => {
+    const sMusic = play("sMusic", {
+        volume: 1,
+        loop: true
+    })
+    add([
+        rect(width(), height()),
+        color(0, 1, 1)
+    ]);
+    add([
+        text('KillMath', 16),
+        anchor("center"),
+        pos(width() / 2, height() / 2 - 75)
+    ]);
+    add([
+        text('Press the space key to start.', 10, {
+            width: width() - 50
+        }),
+        anchor("center"),
+        pos(width() / 2, (height() / 2) + 40)
+    ]);
+
+    // Continuously check for the space key press
+    onUpdate(() => {
+        if (isKeyPressed("space")) {
+            sMusic.stop()
             go("main");  // Go back to the main scene
         }
     });
 });
 // Start the game with the main scene 
-go("main");   
+go("start");   
