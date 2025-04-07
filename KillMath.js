@@ -22,7 +22,7 @@ loadSprite("Ata", "Assets/Ata.png");
 loadSound("bgMusic", "bgMusic.mp3")
 loadSound("sMusic", "sMusic.mp3") 
 // Define the main scene
-scene("main", () => {
+scene("easy", () => {
     const music = play("bgMusic", {
         volume: 1,
         loop: true
@@ -148,7 +148,7 @@ scene("main", () => {
             // Example: Stop player movement when colliding with a table
             p.pos.x = Math.max(bgLeftEdge, Math.min(p.pos.x, bgRightEdge));
             p.pos.y = Math.max(bgTopEdge, Math.min(p.pos.y, bgBottomEdge));
-            shake(60)
+            shake(20)
         });
         p.onCollide("G", (g) => {
             // Handle the collision (e.g., stop movement, play a sound, etc.)
@@ -164,6 +164,149 @@ scene("main", () => {
         updateMultiplier();  // Update the  multiplier every 2 seconds
     });
 });
+scene("hard", () => {
+    const music = play("bgMusic", {
+        volume: 1,
+        loop: true
+    })
+    const bg = add([
+        sprite("BackGround"),
+        anchor("center"),
+        scale(assetScale),
+        pos(width() / 2, height() / 2)
+    ]);
+    const bgLeftEdge = bg.pos.x - bg.width / 2;
+    const bgRightEdge = bg.pos.x + bg.width / 2;
+    const bgTopEdge = bg.pos.y - bg.height / 2;
+    const bgBottomEdge = bg.pos.y + bg.height / 2;
+
+    // Add table function that calculates its position consistently
+    function addTable(x, y) {
+        const t_Position = vec2(
+            (width() / 2) + x,
+            (height() / 2) + y
+        );
+    
+        add([  // Add the table with proper position and properties
+            "table",
+            sprite("Table"),
+            anchor("center"),
+            scale(assetScale * 0.2),
+            area(),
+            pos(t_Position),  // Fix the table's position here
+            area()
+        ]);
+    }
+
+    // Add tables with specific offsets 
+    addTable(-250, 0);
+    addTable(-250, 150);
+    addTable(250, 0);
+    addTable(250, 150);
+    addTable(width() / 2 - 470, height() / 2 - 400);
+
+    // Create Gopal sprite
+    const Tansra = add([
+        "T",
+        sprite("T"),
+        anchor("center"),
+        body(),
+        pos(width() / 2, height() / 2 - 160),
+        scale(5),
+        area(),
+        { health: 100 }
+    ]);
+
+    // Create Player sprite
+    const Player = add([
+        "player",
+        sprite("Ata"),
+        anchor("center"),
+        body(),
+        pos(width() / 2, height()/2 + 200),
+        scale(0.5),
+        area(),
+        { health: 100 }
+    ]);
+
+    const SPEED = 400;  // Base speed
+    let mult = Math.random() * 2 - 1;  // Initial random multiplier, between -1 and 1
+
+    // Function to update multiplier after a delay
+    function updateMultiplier() {
+        mult = Math.random() * 2 - 1;  // Update to a new random multiplier (between -1 and 1)
+        if (mult === 0) { // Make sure the multiplier isn't zero
+            mult = 0.5;  // Set it to a non-zero value
+        }
+    }
+
+    // Update the position of Gopal
+    onUpdate("T", (t) => {
+        // Move Gopal horizontally with the current random speed
+        t.move(SPEED * mult, 0);
+
+        // Clamp Gopal's position within the bounds of the background
+        t.pos.x = Math.max(bgLeftEdge, Math.min(t.pos.x, bgRightEdge));
+        t.pos.y = Math.max(bgTopEdge, Math.min(t.pos.y, bgBottomEdge));
+        // If Gopal goes off-screen to the left, destroy him
+        if (t.pos.x <= -width()) {
+            destroy(t);
+        }
+    });
+
+    // Define movement directions
+    const directions = {
+        "right": vec2(1, 0),
+        "left": vec2(-1, 0),
+        "up": vec2(0, -1),
+        "down": vec2(0, 1),
+    };
+
+    // Handle player movement using key presses
+    onUpdate("player", (p) => {
+        // Horizontal movement
+        if (isKeyDown("left") || isKeyDown("a")) {
+            p.move(directions.left.scale(SPEED)); // Move left
+            p.flipX = false; // Ensure the sprite is facing left
+        } else if (isKeyDown("right") || isKeyDown("d")) {
+            p.move(directions.right.scale(SPEED)); // Move right
+            p.flipX = true; // Flip the sprite to face right
+        }
+
+        // Vertical movement
+        if (isKeyDown("up") || isKeyDown("w")) {
+            p.move(directions.up.scale(SPEED)); // Move up
+        } else if (isKeyDown("down") || isKeyDown("s")) {
+            p.move(directions.down.scale(SPEED)); // Move down
+        }
+
+        // Restrict the player within the bounds of the background
+        p.pos.x = Math.max(bgLeftEdge, Math.min(p.pos.x, bgRightEdge));
+        p.pos.y = Math.max(bgTopEdge, Math.min(p.pos.y, bgBottomEdge));
+    
+        p.onCollide("table", (t) => {
+            // Handle the collision (e.g., stop movement, play a sound, etc.)
+            console.log(" Collided with table!");
+            // Example: Stop player movement when colliding with a table
+            p.pos.x = Math.max(bgLeftEdge, Math.min(p.pos.x, bgRightEdge));
+            p.pos.y = Math.max(bgTopEdge, Math.min(p.pos.y, bgBottomEdge));
+            shake(20)
+        });
+        p.onCollide("T", (t) => {
+            // Handle the collision (e.g., stop movement, play a sound, etc.)
+            console.log(" Collided with Gopal! ");
+            // Example: Stop player movement when colliding with a table
+            music.stop()
+            go("gameover")
+        })
+    }); 
+
+    // Start a repeating timer to update the multiplier every 2 seconds
+    loop(2, () => {
+        updateMultiplier();  // Update the  multiplier every 2 seconds
+    });
+});
+
 scene("gameover", () => {
     add([
         rect(width(), height()),
@@ -185,7 +328,7 @@ scene("gameover", () => {
     // Continuously check for the space key press
     onUpdate(() => {
         if (isKeyPressed("space")) {
-            go("start");  // Go back to the main scene
+            go("start");  // Go back to the easy scene
         }
     });
 });
@@ -204,7 +347,7 @@ scene("start", () => {
         pos(width() / 2, height() / 2 - 75)
     ]);
     add([
-        text('Press the space key to start.', 10, {
+        text('Press the space key to start. or Enter to raise difficulty', 10, {
             width: width() - 50
         }),
         anchor("center"),
@@ -215,9 +358,15 @@ scene("start", () => {
     onUpdate(() => {
         if (isKeyPressed("space")) {
             sMusic.stop()
-            go("main");  // Go back to the main scene
+            go("easy");  // Go back to the easy scene
         }
     });
+    onUpdate(() => {
+        if (isKeyPressed("enter")) {
+            sMusic.stop()
+            go("hard");  // Go back to the easy scene
+        }
+    })
 });
-// Start the game with the main scene 
+// Start the game with the easy scene 
 go("start");   
