@@ -7,7 +7,7 @@ kaboom({
     stretch: true,
     letterbox: true
 });
-debug.inspect = true;
+debug.inspect = false;
 setBackground(0, 0, 0);
 
 const assetScale = Math.min(width() / 800, height() / 600);
@@ -142,13 +142,43 @@ scene("main", () => {
             p.pos.x = Math.max(bgLeftEdge, Math.min(p.pos.x, bgRightEdge));
             p.pos.y = Math.max(bgTopEdge, Math.min(p.pos.y, bgBottomEdge));
         });
-    });
+        p.onCollide("G", (g) => {
+            // Handle the collision (e.g., stop movement, play a sound, etc.)
+            console.log(" Collided with Gopal! ");
+            // Example: Stop player movement when colliding with a table
+            go("gameover")
+        })
+    }); 
 
     // Start a repeating timer to update the multiplier every 2 seconds
     loop(2, () => {
         updateMultiplier();  // Update the  multiplier every 2 seconds
     });
 });
+scene("gameover", () => {
+    add([
+        rect(width(), height()),
+        color(0, 0, 0)
+    ]);
+    add([
+        text('Game Over', 16),
+        anchor("center"),
+        pos(width() / 2, height() / 2)
+    ]);
+    add([
+        text('Press the space key to start over', 10, {
+            width: width() - 50
+        }),
+        anchor("center"),
+        pos(width() / 2, (height() / 2) + 40)
+    ]);
 
-// Start the game with the main scene
-go("main"); 
+    // Continuously check for the space key press
+    onUpdate(() => {
+        if (isKeyPressed("space")) {
+            go("main");  // Go back to the main scene
+        }
+    });
+});
+// Start the game with the main scene 
+go("main");   
