@@ -19,9 +19,14 @@ loadSprite("Table", "Assets/Table.png");
 loadSprite("G", "Assets/G.png");
 loadSprite("T", "Assets/T.png");
 loadSprite("Ata", "Assets/Ata.png");
+loadSound("bgMusic", "bgMusic.mp3")
 
 // Define the main scene
 scene("main", () => {
+    const music = play("bgMusic", {
+        volume: 1,
+        loop: true
+    })
     const bg = add([
         sprite("BackGround"),
         anchor("center"),
@@ -141,11 +146,13 @@ scene("main", () => {
             // Example: Stop player movement when colliding with a table
             p.pos.x = Math.max(bgLeftEdge, Math.min(p.pos.x, bgRightEdge));
             p.pos.y = Math.max(bgTopEdge, Math.min(p.pos.y, bgBottomEdge));
+            shake(60)
         });
         p.onCollide("G", (g) => {
             // Handle the collision (e.g., stop movement, play a sound, etc.)
             console.log(" Collided with Gopal! ");
             // Example: Stop player movement when colliding with a table
+            music.stop()
             go("gameover")
         })
     }); 
