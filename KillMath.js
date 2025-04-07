@@ -19,6 +19,7 @@ loadSprite("Table", "Assets/Table.png");
 loadSprite("G", "Assets/G.png");
 loadSprite("T", "Assets/T.png");
 loadSprite("Ata", "Assets/Ata.png");
+
 // Define the main scene
 scene("main", () => {
     const bg = add([
@@ -29,6 +30,8 @@ scene("main", () => {
     ]);
     const bgLeftEdge = bg.pos.x - bg.width / 2;
     const bgRightEdge = bg.pos.x + bg.width / 2;
+    const bgTopEdge = bg.pos.y - bg.height / 2;
+    const bgBottomEdge = bg.pos.y + bg.height / 2;
 
     // Add table function that calculates its position consistently
     function addTable(x, y) {
@@ -36,19 +39,19 @@ scene("main", () => {
             (width() / 2) + x,
             (height() / 2) + y
         );
-
+    
         add([  // Add the table with proper position and properties
             "table",
             sprite("Table"),
             anchor("center"),
             scale(assetScale * 0.2),
             area(),
-            body(),
-            pos(t_Position)
+            pos(t_Position),  // Fix the table's position here
+            area()
         ]);
     }
 
-    // Add tables with specific offsets
+    // Add tables with specific offsets 
     addTable(-250, 0);
     addTable(-250, 150);
     addTable(250, 0);
@@ -66,22 +69,24 @@ scene("main", () => {
         area(),
         { health: 100 }
     ]);
+
+    // Create Player sprite
     const Player = add([
         "player",
         sprite("Ata"),
         anchor("center"),
         body(),
-        pos(width() / 2, height() / 2 + 200),
+        pos(width() / 2, height()/2 + 200),
         scale(0.5),
         area(),
         { health: 100 }
-    ])
+    ]);
 
     const SPEED = 200;  // Base speed
     let mult = Math.random() * 2 - 1;  // Initial random multiplier, between -1 and 1
 
     // Function to update multiplier after a delay
-    function updateMultiplier() { 
+    function updateMultiplier() {
         mult = Math.random() * 2 - 1;  // Update to a new random multiplier (between -1 and 1)
         if (mult === 0) { // Make sure the multiplier isn't zero
             mult = 0.5;  // Set it to a non-zero value
@@ -95,18 +100,55 @@ scene("main", () => {
 
         // Clamp Gopal's position within the bounds of the background
         g.pos.x = Math.max(bgLeftEdge, Math.min(g.pos.x, bgRightEdge));
-        
+        g.pos.y = Math.max(bgTopEdge, Math.min(g.pos.y, bgBottomEdge));
         // If Gopal goes off-screen to the left, destroy him
         if (g.pos.x <= -width()) {
             destroy(g);
         }
     });
 
+    // Define movement directions
+    const directions = {
+        "right": vec2(1, 0),
+        "left": vec2(-1, 0),
+        "up": vec2(0, -1),
+        "down": vec2(0, 1),
+    };
+
+    // Handle player movement using key presses
+    onUpdate("player", (p) => {
+        // Horizontal movement
+        if (isKeyDown("left") || isKeyDown("a")) {
+            p.move(directions.left.scale(SPEED)); // Move left
+        } else if (isKeyDown("right") || isKeyDown("d")) {
+            p.move(directions.right.scale(SPEED)); // Move right
+        }
+
+        // Vertical movement
+        if (isKeyDown("up") || isKeyDown("w")) {
+            p.move(directions.up.scale(SPEED)); // Move up
+        } else if (isKeyDown("down") || isKeyDown("s")) {
+            p.move(directions.down.scale(SPEED)); // Move down
+        }
+
+        // Restrict the player within the bounds of the background
+        p.pos.x = Math.max(bgLeftEdge, Math.min(p.pos.x, bgRightEdge));
+        p.pos.y = Math.max(bgTopEdge, Math.min(p.pos.y, bgBottomEdge));
+    
+        p.onCollide("table", (t) => {
+            // Handle the collision (e.g., stop movement, play a sound, etc.)
+            console.log(" Collided with table!");
+            // Example: Stop player movement when colliding with a table
+            p.pos.x = Math.max(bgLeftEdge, Math.min(p.pos.x, bgRightEdge));
+            p.pos.y = Math.max(bgTopEdge, Math.min(p.pos.y, bgBottomEdge));
+        });
+    });
+
     // Start a repeating timer to update the multiplier every 2 seconds
     loop(2, () => {
-        updateMultiplier();  // Update the multiplier every 2 seconds
+        updateMultiplier();  // Update the  multiplier every 2 seconds
     });
 });
 
 // Start the game with the main scene
-go("main");
+go("main"); 
