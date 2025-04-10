@@ -405,3 +405,10 @@ go("easy");
 onUpdate(() => {
     console.log("Current Scene: ", getCurrentScene());
 });
+onUpdate(() => {
+    console.log("Checking if space is pressed");
+    if (isKeyPressed("space")) {
+        console.log("Space pressed, going to easy scene");
+        go("easy");
+    }
+});
