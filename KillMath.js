@@ -402,3 +402,6 @@ scene("start", () => {
 });
 // Start the game with the easy scene 
 go("easy");   
+onUpdate(() => {
+    console.log("Current Scene: ", getCurrentScene());
+});
