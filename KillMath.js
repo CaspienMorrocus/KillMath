@@ -7,22 +7,33 @@ kaboom({
     stretch: true,
     letterbox: true
 });
-debug.inspect = false;
+debug.inspect = true;
 setBackground(0, 0, 0);
 
 const assetScale = Math.min(width() / 800, height() / 600);
 loadRoot("./");
 
 // Load sprites
-loadSprite("BackGround", "Assets/background.png");
-loadSprite("Table", "Assets/Table.png");
-loadSprite("G", "Assets/G.png");
-loadSprite("T", "Assets/T.png");
-loadSprite("Ata", "Assets/Ata.png");
+loadSprite("BackGround", "./Assets/background.png");
+loadSprite("Table", "./Assets/Table.png");
+loadSprite("G", "./Assets/G.png");
+loadSprite("T", "./Assets/T.png");
+loadSprite("Ata", "./Assets/Ata.png");
 loadSound("bgMusic", "bgMusic.mp3")
 loadSound("sMusic", "sMusic.mp3") 
+loadSound("explosion", "explosion.wav") 
+
 // Define the main scene
 scene("easy", () => {
+
+    let playerSpeedMultiplier = 1;
+let slowTimer = 0;  
+const BASE_SPEED = 200;
+
+// inside onUpdate("player", (p) => { ... })
+
+// Update speed if slowed
+
     const music = play("bgMusic", {
         volume: 1,
         loop: true
@@ -49,10 +60,10 @@ scene("easy", () => {
             "table",
             sprite("Table"),
             anchor("center"),
-            scale(assetScale * 0.2),
+            scale(assetScale * 0.15),
             area(),
             pos(t_Position),  // Fix the table's position here
-            area()
+            area({ collisionIgnore: [] }),
         ]);
     }
 
@@ -70,7 +81,7 @@ scene("easy", () => {
         anchor("center"),
         body(),
         pos(width() / 2, height() / 2 - 160),
-        scale(5),
+        scale(4),
         area(),
         { health: 100 }
     ]);
@@ -82,7 +93,7 @@ scene("easy", () => {
         anchor("center"),
         body(),
         pos(width() / 2, height()/2 + 200),
-        scale(0.5),
+        scale(0.4),
         area(),
         { health: 100 }
     ]);
@@ -90,31 +101,27 @@ scene("easy", () => {
     const SPEED = 200;  // Base speed
     let mult = Math.random() * 2 - 1;  // Initial random multiplier, between -1 and 1
 
-    // Function to update multiplier after a delay
+    
     function updateMultiplier() {
-        mult = Math.random() * 2 - 1;  // Update to a new random multiplier (between -1 and 1)
-        if (mult === 0) { // Make sure the multiplier isn't zero
-            mult = 0.5;  // Set it to a non-zero value
+        mult = Math.random() * 2 - 1;  
+        if (mult === 0) { 
+            mult = 0.5;  
         }
     }
 
     // Update the position of Gopal
     onUpdate("G", (g) => {
-        // Move Gopal horizontally with the current random speed
-        g.move(SPEED * mult, 0);
-
-        // Clamp Gopal's position within the bounds of the background
+        const dir = Player.pos.sub(g.pos).unit(); // Get direction vector toward player
+        g.move(dir.scale(SPEED - 100)); // Move Gopal toward player
+    
+        // Clamp Gopal's position within the background bounds
         g.pos.x = Math.max(bgLeftEdge, Math.min(g.pos.x, bgRightEdge));
         g.pos.y = Math.max(bgTopEdge, Math.min(g.pos.y, bgBottomEdge));
-        // If Gopal goes off-screen to the left, destroy him
-        if (g.pos.x <= -width()) {
-            destroy(g);
-        }
     });
 
     // Define movement directions
     const directions = {
-        "right": vec2(1, 0),
+        "right": vec2(1, 0), 
         "left": vec2(-1, 0),
         "up": vec2(0, -1),
         "down": vec2(0, 1),
@@ -122,21 +129,32 @@ scene("easy", () => {
 
     // Handle player movement using key presses
     onUpdate("player", (p) => {
+        if (slowTimer > 0) {
+            slowTimer -= dt();
+            playerSpeedMultiplier = 0.5; 
+        } else {
+            playerSpeedMultiplier = 1; 
+        }
         // Horizontal movement
         if (isKeyDown("left") || isKeyDown("a")) {
-            p.move(directions.left.scale(SPEED)); // Move left
+            p.move(directions.left.scale(BASE_SPEED * playerSpeedMultiplier)); // Move left
             p.flipX = false; // Ensure the sprite is facing left
+            
         } else if (isKeyDown("right") || isKeyDown("d")) {
-            p.move(directions.right.scale(SPEED)); // Move right
+            p.move(directions.right.scale(BASE_SPEED * playerSpeedMultiplier)); // Move right
             p.flipX = true; // Flip the sprite to face right
+          
         }
 
         // Vertical movement
         if (isKeyDown("up") || isKeyDown("w")) {
-            p.move(directions.up.scale(SPEED)); // Move up
+            p.move(directions.up.scale(BASE_SPEED * playerSpeedMultiplier)); // Move up
+         
         } else if (isKeyDown("down") || isKeyDown("s")) {
-            p.move(directions.down.scale(SPEED)); // Move down
+            p.move(directions.down.scale(BASE_SPEED * playerSpeedMultiplier)); // Move down
+           
         }
+        let recentlyShook = false;
 
         // Restrict the player within the bounds of the background
         p.pos.x = Math.max(bgLeftEdge, Math.min(p.pos.x, bgRightEdge));
@@ -145,17 +163,22 @@ scene("easy", () => {
         p.onCollide("table", (t) => {
             // Handle the collision (e.g., stop movement, play a sound, etc.)
             console.log(" Collided with table!");
+            play("explosion")
+            slowTimer = 1;
             // Example: Stop player movement when colliding with a table
             p.pos.x = Math.max(bgLeftEdge, Math.min(p.pos.x, bgRightEdge));
             p.pos.y = Math.max(bgTopEdge, Math.min(p.pos.y, bgBottomEdge));
-            shake(20)
+           
+
         });
         p.onCollide("G", (g) => {
             // Handle the collision (e.g., stop movement, play a sound, etc.)
             console.log(" Collided with Gopal! ");
+            
+           
             // Example: Stop player movement when colliding with a table
             music.stop()
-            go("gameover")
+            go("gameover") 
         })
     }); 
 
@@ -165,6 +188,9 @@ scene("easy", () => {
     });
 });
 scene("hard", () => {
+    let playerSpeedMultiplier = 1;
+    let slowTimer = 0; 
+    const BASE_SPEED = 400;
     const music = play("bgMusic", {
         volume: 1,
         loop: true
@@ -191,10 +217,10 @@ scene("hard", () => {
             "table",
             sprite("Table"),
             anchor("center"),
-            scale(assetScale * 0.2),
+            scale(assetScale * 0.15),
             area(),
             pos(t_Position),  // Fix the table's position here
-            area()
+            area({ collisionIgnore: [] }),
         ]);
     }
 
@@ -206,7 +232,7 @@ scene("hard", () => {
     addTable(width() / 2 - 470, height() / 2 - 400);
 
     // Create Gopal sprite
-    const Tansra = add([
+    const Tans = add([
         "T",
         sprite("T"),
         anchor("center"),
@@ -224,12 +250,12 @@ scene("hard", () => {
         anchor("center"),
         body(),
         pos(width() / 2, height()/2 + 200),
-        scale(0.5),
+        scale(0.4),
         area(),
         { health: 100 }
     ]);
 
-    const SPEED = 400;  // Base speed
+    const SPEED = 400;  
     let mult = Math.random() * 2 - 1;  // Initial random multiplier, between -1 and 1
 
     // Function to update multiplier after a delay
@@ -242,16 +268,11 @@ scene("hard", () => {
 
     // Update the position of Gopal
     onUpdate("T", (t) => {
-        // Move Gopal horizontally with the current random speed
-        t.move(SPEED * mult, 0);
-
-        // Clamp Gopal's position within the bounds of the background
+        const dir = Player.pos.sub(t.pos).unit(); 
+        t.move(dir.scale(SPEED - 200)); 
+       
         t.pos.x = Math.max(bgLeftEdge, Math.min(t.pos.x, bgRightEdge));
         t.pos.y = Math.max(bgTopEdge, Math.min(t.pos.y, bgBottomEdge));
-        // If Gopal goes off-screen to the left, destroy him
-        if (t.pos.x <= -width()) {
-            destroy(t);
-        }
     });
 
     // Define movement directions
@@ -264,20 +285,30 @@ scene("hard", () => {
 
     // Handle player movement using key presses
     onUpdate("player", (p) => {
+        if (slowTimer > 0) {
+            slowTimer -= dt();
+            playerSpeedMultiplier = 0.5; 
+        } else {
+            playerSpeedMultiplier = 1; 
+        }
         // Horizontal movement
         if (isKeyDown("left") || isKeyDown("a")) {
-            p.move(directions.left.scale(SPEED)); // Move left
+            p.move(directions.left.scale(BASE_SPEED * playerSpeedMultiplier)); // Move left
             p.flipX = false; // Ensure the sprite is facing left
+            
         } else if (isKeyDown("right") || isKeyDown("d")) {
-            p.move(directions.right.scale(SPEED)); // Move right
+            p.move(directions.right.scale(BASE_SPEED * playerSpeedMultiplier)); // Move right
             p.flipX = true; // Flip the sprite to face right
+          
         }
 
         // Vertical movement
         if (isKeyDown("up") || isKeyDown("w")) {
-            p.move(directions.up.scale(SPEED)); // Move up
+            p.move(directions.up.scale(BASE_SPEED * playerSpeedMultiplier)); // Move up
+         
         } else if (isKeyDown("down") || isKeyDown("s")) {
-            p.move(directions.down.scale(SPEED)); // Move down
+            p.move(directions.down.scale(BASE_SPEED * playerSpeedMultiplier)); // Move down
+           
         }
 
         // Restrict the player within the bounds of the background
@@ -286,15 +317,16 @@ scene("hard", () => {
     
         p.onCollide("table", (t) => {
             // Handle the collision (e.g., stop movement, play a sound, etc.)
-            console.log(" Collided with table!");
+            play("explosion")
+            slowTimer = 1.5;
             // Example: Stop player movement when colliding with a table
             p.pos.x = Math.max(bgLeftEdge, Math.min(p.pos.x, bgRightEdge));
             p.pos.y = Math.max(bgTopEdge, Math.min(p.pos.y, bgBottomEdge));
-            shake(20)
+            
         });
         p.onCollide("T", (t) => {
             // Handle the collision (e.g., stop movement, play a sound, etc.)
-            console.log(" Collided with Gopal! ");
+            shake(5)
             // Example: Stop player movement when colliding with a table
             music.stop()
             go("gameover")
@@ -344,7 +376,7 @@ scene("start", () => {
     add([
         text('KillMath', 16),
         anchor("center"),
-        pos(width() / 2, height() / 2 - 75)
+        pos(width() / 2, height() / 2 - 75) 
     ]);
     add([
         text('Press the space key to start. or Enter to raise difficulty', 10, {
