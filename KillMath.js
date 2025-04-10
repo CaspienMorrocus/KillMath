@@ -49,7 +49,7 @@ const BASE_SPEED = 200;
     const bgTopEdge = bg.pos.y - bg.height / 2;
     const bgBottomEdge = bg.pos.y + bg.height / 2;
 
-    // Add table function that calculates its position consistently
+    // Add table function that calculates its position consistently  
     function addTable(x, y) {
         const t_Position = vec2(
             (width() / 2) + x,
@@ -401,7 +401,11 @@ scene("start", () => {
     })
 });
 
-go("easy");   
+go("start");   
+mouseClick(() => {
+    kaboom.resumeAudioContext();
+    // Continue with loading sounds or starting your game
+  })
 onUpdate(() => {
     console.log("Current Scene: ", getCurrentScene());
 });
@@ -411,4 +415,4 @@ onUpdate(() => {
         console.log("Space pressed, going to easy scene");
         go("easy");
     }
-});
+});    
