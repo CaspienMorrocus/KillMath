@@ -401,4 +401,4 @@ scene("start", () => {
     })
 });
 // Start the game with the easy scene 
-go("start");   
+go("easy");   
