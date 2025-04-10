@@ -25,7 +25,7 @@ loadSound("explosion", "explosion.wav")
 
 // Define the main scene
 scene("easy", () => {
-
+    wait(3)
     let playerSpeedMultiplier = 1;
 let slowTimer = 0;  
 const BASE_SPEED = 200;
@@ -386,21 +386,21 @@ scene("start", () => {
         pos(width() / 2, (height() / 2) + 40)
     ]);
 
-    // Continuously check for the space key press
+    
     onUpdate(() => {
         if (isKeyPressed("space")) {
             sMusic.stop()
-            go("easy");  // Go back to the easy scene
+            go("easy"); 
         }
     });
     onUpdate(() => {
         if (isKeyPressed("enter")) {
             sMusic.stop()
-            go("hard");  // Go back to the easy scene
+            go("hard");  
         }
     })
 });
-// Start the game with the easy scene 
+
 go("easy");   
 onUpdate(() => {
     console.log("Current Scene: ", getCurrentScene());
