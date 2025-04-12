@@ -19,10 +19,13 @@ loadSprite("Table", "./Assets/Table.png");
 loadSprite("G", "./Assets/G.png");
 loadSprite("T", "./Assets/T.png");
 loadSprite("Ata", "./Assets/Ata.png");
+loadSprite("Bullet", "./Assets/bullet.png");
 loadSound("bgMusic", "bgMusic.mp3")
 loadSound("sMusic", "sMusic.mp3") 
 loadSound("explosion", "explosion.wav") 
-
+loadSound("gShot", "GunShot.mp3") 
+loadSound("gLoad", "GunLoad.mp3") 
+loadSound("vMusic", "vMusic.mp3") 
 // Define the main scene
 scene("easy", () => {
     wait(3)
@@ -107,6 +110,7 @@ scene("easy", () => {
         gopalHealthBar.width = (Gopal.health / Gopal.maxHealth) * 80;
     });
 
+    
     // Create Player sprite
     const Player = add([
         "player",
@@ -116,9 +120,78 @@ scene("easy", () => {
         pos(width() / 2, height()/2 + 200),
         scale(0.4),
         area(),
-        { health: 100 }
+        { 
+            health: 100,
+            canShoot: true,
+            shootCooldown: 0.5,  // Half second between shots
+            lastShot: 0
+        }
     ]);
+    onKeyPress("space", () => {
+        const player = get("player")[0];
+        if (player && player.canShoot && time() - player.lastShot >= player.shootCooldown) {
+            player.lastShot = time();
+            
+              
+            const bullet = add([
+                "bullet",
+                sprite("Bullet"),
+                pos(player.pos),
+                anchor("center"),
+                scale(0.3),
+                area(),
+                {
+                    speed: 600,
+                    damage: 10,
+                    direction: vec2(0, -1)  
+                }
+            ]);
+                 
+              
+            if (player.flipX) {
+                bullet.direction = vec2(1, 0);  // Right
+            } else {
+                bullet.direction = vec2(-1, 0); // Left
+            }
+            
+            
+            bullet.onUpdate(() => {
+                bullet.move(bullet.direction.scale(bullet.speed));
+                
+               
+                if (bullet.pos.x < 0 || bullet.pos.x > width() || 
+                    bullet.pos.y < 0 || bullet.pos.y > height()) {
+                    destroy(bullet);
+                }
+            });
+            
+            play("gShot", { volume: 0.3 });
+            wait(2, () => {
+                play("gLoad", { volume: 0.3 });
+            });
+        }
+    });
+    // Bullet collision with Gopal
+onCollide("bullet", "G", (bullet, gopal) => {
+    destroy(bullet);
+    gopal.health -= bullet.damage;
+    
+    
+    
+    // Check if defeated
+    if (gopal.health <= 0) {
+        destroy(gopal);
+        destroy(gopalHealthBarBg);
+        destroy(gopalHealthBar);
+        music.stop();
+        go("victory");
+    }
+});
 
+// Bullet collision with tables
+onCollide("bullet", "table", (bullet, table) => {
+    destroy(bullet);
+});
     const SPEED = 200;
     let mult = Math.random() * 2 - 1;
 
@@ -276,9 +349,78 @@ scene("hard", () => {
         pos(width() / 2, height()/2 + 200),
         scale(0.4),
         area(),
-        { health: 100 }
+        { 
+            health: 100,
+            canShoot: true,
+            shootCooldown: 0.5,  // Half second between shots
+            lastShot: 0
+        }
     ]);
+    // Shooting controls
+onKeyPress("space", () => {
+    const player = get("player")[0];
+    if (player && player.canShoot && time() - player.lastShot >= player.shootCooldown) {
+        player.lastShot = time();
+        
+        // Create bullet
+        const bullet = add([
+            "bullet",
+            sprite("Bullet"),
+            pos(player.pos),
+            anchor("center"),
+            scale(0.3),
+            area(),
+            {
+                speed: 600,
+                damage: 10,
+                direction: vec2(0, -1)  // Default upward direction
+            }
+        ]);
+        
+        // Set direction based on player's facing
+        if (player.flipX) {
+            bullet.direction = vec2(1, 0);  // Right
+        } else {
+            bullet.direction = vec2(-1, 0); // Left
+        }
+        
+        // Move bullet
+        bullet.onUpdate(() => {
+            bullet.move(bullet.direction.scale(bullet.speed));
+            
+            // Remove if off-screen
+            if (bullet.pos.x < 0 || bullet.pos.x > width() || 
+                bullet.pos.y < 0 || bullet.pos.y > height()) {
+                destroy(bullet);
+            }
+        });
+        
+        play("gShot", { volume: 0.3 });
+        wait(2, () => {
+            play("gLoad", { volume: 0.3 });
+        });
+    }
+});
+    // Bullet collision with Tans
+onCollide("bullet", "T", (bullet, tans) => {
+    destroy(bullet);
+    tans.health -= bullet.damage;
 
+    
+    // Check if defeated
+    if (tans.health <= 0) {
+        destroy(tans);
+        destroy(tansHealthBarBg);
+        destroy(tansHealthBar);
+        music.stop();
+        go("victory");
+    }
+});
+
+// Bullet collision with tables
+onCollide("bullet", "table", (bullet, table) => {
+    destroy(bullet);
+});
     const SPEED = 400;  
     let mult = Math.random() * 2 - 1;
 
@@ -410,7 +552,52 @@ scene("start", () => {
         }
     })
 });
+scene("victory", () => {
+    const vMusic = play("vMusic", {
+        volume: 1,
+        loop: true
+    })
+    const Ata = add([
+        sprite("Ata"),
+        anchor("center"),
+        pos(width() - 100, height() - 100)
 
+    ])
+    Ata.onUpdate(() => {
+        Ata.scale = vec2(1 + Math.sin(time() * 5) * 0.05);
+    });
+    add([
+        
+            rect(width(), height()),
+            pos(0, 0),         
+            color(rgb(0, 200, 0)),  
+            z(-1)              
+        
+    ]);
+    
+    const victoryText = add([
+        text('Victory!', 32),
+        anchor("center"),
+        pos(width() / 2, height() / 2 - 50),
+        color(rgb(255,255,255))
+    ]);
+    
+    victoryText.onUpdate(() => {
+        victoryText.scale = vec2(1 + Math.sin(time() * 5) * 0.05);
+    });
+    
+    add([
+        text('Press space to play again', 16),
+        anchor("center"),
+        pos(width() / 2, height() / 2 + 50),
+        color(0, 0, 0)
+    ]);
+    
+    onKeyPress("space", () => {
+        vMusic.stop(),
+        go("start")
+    });
+});
 go("start");   
 mouseClick(() => {
     kaboom.resumeAudioContext();
