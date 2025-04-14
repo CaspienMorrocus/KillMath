@@ -20,7 +20,7 @@ loadSprite("G", "./Assets/G.png");
 loadSprite("T", "./Assets/T.png");
 loadSprite("Ata", "./Assets/Ata.png");
 loadSprite("Bullet", "./Assets/bullet.png");
-loadSound("bgMusic", "bgMusic.mp3")
+loadSound("bgMusic", "bgMusic.mp3")  
 loadSound("sMusic", "sMusic.mp3") 
 loadSound("explosion", "explosion.wav") 
 loadSound("gShot", "GunShot.mp3") 
@@ -28,8 +28,12 @@ loadSound("gLoad", "GunLoad.mp3")
 loadSound("vMusic", "vMusic.mp3") 
 // Define the main scene
 scene("easy", () => {
+    onClick(() => {
+        const pos = mousePos();
+        console.log(`Mouse clicked at X: ${pos.x}, Y: ${pos.y}`);
+    });
     wait(3)
-    let playerSpeedMultiplier = 1;
+    let playerSpeedMultiplier = 1;  
     let slowTimer = 0;  
     const BASE_SPEED = 200;
 
@@ -166,7 +170,7 @@ scene("easy", () => {
             });
             
             play("gShot", { volume: 0.3 });
-            wait(2, () => {
+            wait(1, () => {
                 play("gLoad", { volume: 0.3 });
             });
         }
@@ -186,12 +190,27 @@ onCollide("bullet", "G", (bullet, gopal) => {
         music.stop();
         go("victory");
     }
-});
+});    
+let abyss = add([  
+    //X: 416, Y: 329
+    rect(20, 20),
+    pos(width()/2 + 230,height()/2 - 230), 
+    color(0,0,0), 
+    opacity(0), 
+    area(),
+    "abyss"
+])
 
-// Bullet collision with tables
-onCollide("bullet", "table", (bullet, table) => {
-    destroy(bullet);
-});
+   
+onCollide("player", "abyss", ()=>{
+    let txt = add([
+        text("the abyss gazes into your heart...will you gaze back?", 5)
+    ])
+    wait(3, () => {
+        destroy(txt);  
+    });
+})
+  
     const SPEED = 200;
     let mult = Math.random() * 2 - 1;
 
@@ -199,8 +218,8 @@ onCollide("bullet", "table", (bullet, table) => {
         mult = Math.random() * 2 - 1;  
         if (mult === 0) { 
             mult = 0.5;  
-        }
-    }
+        } 
+    }  
 
     onUpdate("G", (g) => {
         const dir = Player.pos.sub(g.pos).unit();
@@ -357,6 +376,25 @@ scene("hard", () => {
         }
     ]);
     // Shooting controls
+    let abyss = add([  
+        //X: 416, Y: 329
+        rect(20, 20),
+        pos(width()/2 + 230,height()/2 - 230), 
+        color(0,0,0), 
+        opacity(0),
+        area(),
+        "abyss"
+    ])
+    
+       
+    onCollide("player", "abyss", ()=>{
+        let txt = add([
+            text("the abyss gazes into your heart...will you gaze back?", 5)
+        ])
+        wait(3, () => {
+            destroy(txt);    
+        });
+    })
 onKeyPress("space", () => {
     const player = get("player")[0];
     if (player && player.canShoot && time() - player.lastShot >= player.shootCooldown) {
@@ -396,7 +434,7 @@ onKeyPress("space", () => {
         });
         
         play("gShot", { volume: 0.3 });
-        wait(2, () => {
+        wait(1, () => {
             play("gLoad", { volume: 0.3 });
         });
     }
@@ -413,20 +451,18 @@ onCollide("bullet", "T", (bullet, tans) => {
         destroy(tansHealthBarBg);
         destroy(tansHealthBar);
         music.stop();
-        go("victory");
+        go("victory");  
     }
 });
 
 // Bullet collision with tables
-onCollide("bullet", "table", (bullet, table) => {
-    destroy(bullet);
-});
+
     const SPEED = 400;  
     let mult = Math.random() * 2 - 1;
-
+  
     function updateMultiplier() {
         mult = Math.random() * 2 - 1;
-        if (mult === 0) {
+        if (mult === 0) {   
             mult = 0.5;
         }
     }
@@ -528,15 +564,16 @@ scene("start", () => {
     ]);
     add([
         text('KillMath', 16),
-        anchor("center"),
+        anchor("center"), 
         pos(width() / 2, height() / 2 - 75) 
     ]);
     add([
-        text('Press the space key to start. or Enter to raise difficulty', 10, {
-            width: width() - 50
+        text('Press the space key to start. or Enter to raise difficulty', 5,{ 
+            width: width() - 2,
         }),
         anchor("center"),
-        pos(width() / 2, (height() / 2) + 40)
+        pos(width() / 2 - 30, (height() / 2) + 40),  
+        color(128,128,128)   
     ]);
 
     onUpdate(() => {
@@ -597,9 +634,10 @@ scene("victory", () => {
         vMusic.stop(),
         go("start")
     });
-});
+}); 
 go("start");   
-mouseClick(() => {
+
+mouseClick(() => { 
     kaboom.resumeAudioContext();
 })
 onUpdate(() => {
@@ -611,4 +649,4 @@ onUpdate(() => {
         console.log("Space pressed, going to easy scene");
         go("easy");  
     }
-});
+});         
