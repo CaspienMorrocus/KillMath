@@ -26,7 +26,7 @@ loadSound("explosion", "explosion.wav")
 loadSound("gShot", "GunShot.mp3") 
 loadSound("gLoad", "GunLoad.mp3") 
 loadSound("vMusic", "vMusic.mp3") 
-// Define the main scene
+// Define the main scene  
 scene("easy", () => {
     onClick(() => {
         const pos = mousePos();
