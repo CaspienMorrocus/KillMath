@@ -23,7 +23,7 @@ loadSprite("Bullet", "./Assets/bullet.png");
 loadSound("bgMusic", "bgMusic.mp3")  
 loadSound("sMusic", "sMusic.mp3") 
 loadSound("explosion", "explosion.wav") 
-loadSound("gShot", "GunShot.mp3") 
+loadSound("gShot", "GunShot.mp3")   
 loadSound("gLoad", "GunLoad.mp3") 
 loadSound("vMusic", "vMusic.mp3") 
 // Define the main scene  
