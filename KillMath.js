@@ -7,7 +7,6 @@ kaboom({
     stretch: true,
     letterbox: true
 });
-debug.inspect = false;
 setBackground(0, 0, 0);
 
 const assetScale = Math.min(width() / 800, height() / 600);
