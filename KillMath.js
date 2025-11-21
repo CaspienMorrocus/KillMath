@@ -253,7 +253,7 @@ scene("start", () => {
     const sMusic = play("sMusic", { volume: 1, loop: true });
     add([rect(GAME_WIDTH, GAME_HEIGHT), color(0, 1, 1)]);
     add([text('KillMath', 16), anchor("center"), pos(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 75)]);
-    add([text('Press the space key to start. or Enter to raise difficulty', 10, { width: GAME_WIDTH - 50 }), anchor("center"), pos(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 40)]);
+    add([text('Press the space key to start.', 10, { width: GAME_WIDTH }), anchor("center"), pos(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 40)]);
     onUpdate(() => { if (isKeyPressed("space")) { sMusic.stop(); go("easy"); } });
     onUpdate(() => { if (isKeyPressed("enter")) { sMusic.stop(); go("hard"); } });
 });
