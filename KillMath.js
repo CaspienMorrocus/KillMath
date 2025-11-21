@@ -12,7 +12,7 @@ kaboom({
     debug: true
 });
 
-debug.inspect = false;
+debug.inspect = false; 
 setBackground(0, 0, 0);
 
 const assetScale = Math.min(GAME_WIDTH / 800, GAME_HEIGHT / 600);
