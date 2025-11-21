@@ -12,7 +12,7 @@ kaboom({
     debug: true
 });
 
-debug.inspect = true;
+debug.inspect = false;
 setBackground(0, 0, 0);
 
 const assetScale = Math.min(GAME_WIDTH / 800, GAME_HEIGHT / 600);
@@ -192,7 +192,7 @@ scene("hard", () => {
     addTable(-250, 150);
     addTable(250, 0);
     addTable(250, 150);
-    addTable(GAME_WIDTH / 2 - 470, GAME_HEIGHT / 2 - 400);
+    addTable(0, 50);
 
     const Tans = add(["T", sprite("T"), anchor("center"), body(), pos(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 160), scale(5), area(), { health: 150, maxHealth: 150 }]);
     const tansHealthBarBg = add([rect(80, 10), pos(Tans.pos.x - 40, Tans.pos.y - 50), color(255, 0, 0), fixed(), z(100)]);
