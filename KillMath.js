@@ -11,11 +11,8 @@ kaboom({
     fullscreen: true,
     debug: true
 });
-<<<<<<< HEAD
 
 debug.inspect = true;
-=======
->>>>>>> 2d5ab97a3d00ddb39ddde2b3cb1c64b569b9f9d9
 setBackground(0, 0, 0);
 
 const assetScale = Math.min(GAME_WIDTH / 800, GAME_HEIGHT / 600);
@@ -27,7 +24,6 @@ loadSprite("G", "./Assets/G.png");
 loadSprite("T", "./Assets/T.png");
 loadSprite("Ata", "./Assets/Ata.png");
 loadSprite("Bullet", "./Assets/bullet.png");
-<<<<<<< HEAD
 loadSound("bgMusic", "bgMusic.mp3");
 loadSound("sMusic", "sMusic.mp3");
 loadSound("explosion", "explosion.wav");
@@ -39,23 +35,6 @@ scene("easy", () => {
     wait(3);
     let playerSpeedMultiplier = 1;
     let slowTimer = 0;
-=======
-loadSound("bgMusic", "bgMusic.mp3")  
-loadSound("sMusic", "sMusic.mp3") 
-loadSound("explosion", "explosion.wav") 
-loadSound("gShot", "GunShot.mp3")   
-loadSound("gLoad", "GunLoad.mp3") 
-loadSound("vMusic", "vMusic.mp3") 
-// Define the main scene  
-scene("easy", () => {
-    onClick(() => {
-        const pos = mousePos();
-        console.log(`Mouse clicked at X: ${pos.x}, Y: ${pos.y}`);
-    });
-    wait(3)
-    let playerSpeedMultiplier = 1;  
-    let slowTimer = 0;  
->>>>>>> 2d5ab97a3d00ddb39ddde2b3cb1c64b569b9f9d9
     const BASE_SPEED = 200;
 
     const music = play("bgMusic", { volume: 1, loop: true });
@@ -144,7 +123,6 @@ scene("easy", () => {
             });
 
             play("gShot", { volume: 0.3 });
-<<<<<<< HEAD
             wait(2, () => { play("gLoad", { volume: 0.3 }); });
         }
     });
@@ -166,58 +144,6 @@ scene("easy", () => {
     const SPEED = 200;
     let mult = Math.random() * 2 - 1;
     function updateMultiplier() { mult = Math.random() * 2 - 1; if (mult === 0) mult = 0.5; }
-=======
-            wait(1, () => {
-                play("gLoad", { volume: 0.3 });
-            });
-        }
-    });
-    // Bullet collision with Gopal
-onCollide("bullet", "G", (bullet, gopal) => {
-    destroy(bullet);
-    gopal.health -= bullet.damage;
-    
-    
-    
-    // Check if defeated
-    if (gopal.health <= 0) {
-        destroy(gopal);
-        destroy(gopalHealthBarBg);
-        destroy(gopalHealthBar);
-        music.stop();
-        go("victory");
-    }
-});    
-let abyss = add([  
-    //X: 416, Y: 329
-    rect(20, 20),
-    pos(width()/2 + 230,height()/2 - 230), 
-    color(0,0,0), 
-    opacity(0), 
-    area(),
-    "abyss"
-])
-
-   
-onCollide("player", "abyss", ()=>{
-    let txt = add([
-        text("the abyss gazes into your heart...will you gaze back?", 5)
-    ])
-    wait(3, () => {
-        destroy(txt);  
-    });
-})
-  
-    const SPEED = 200;
-    let mult = Math.random() * 2 - 1;
-
-    function updateMultiplier() {
-        mult = Math.random() * 2 - 1;  
-        if (mult === 0) { 
-            mult = 0.5;  
-        } 
-    }  
->>>>>>> 2d5ab97a3d00ddb39ddde2b3cb1c64b569b9f9d9
 
     onUpdate("G", (g) => {
         const dir = Player.pos.sub(g.pos).unit();
@@ -288,7 +214,6 @@ scene("hard", () => {
         }
     });
 
-<<<<<<< HEAD
     onCollide("bullet", "T", (bullet, tans) => { destroy(bullet); tans.health -= bullet.damage; if (tans.health <= 0) { destroy(tans); destroy(tansHealthBarBg); destroy(tansHealthBar); music.stop(); go("victory"); } });
     onCollide("bullet", "table", (bullet, table) => { destroy(bullet); });
 
@@ -297,114 +222,6 @@ scene("hard", () => {
     function updateMultiplier() { mult = Math.random() * 2 - 1; if (mult === 0) mult = 0.5; }
 
     onUpdate("T", (t) => { const dir = Player.pos.sub(t.pos).unit(); t.move(dir.scale(SPEED - 200)); t.pos.x = Math.max(bgLeftEdge, Math.min(t.pos.x, bgRightEdge)); t.pos.y = Math.max(bgTopEdge, Math.min(t.pos.y, bgBottomEdge)); });
-=======
-    const Player = add([
-        "player",
-        sprite("Ata"),
-        anchor("center"),
-        body(),
-        pos(width() / 2, height()/2 + 200),
-        scale(0.4),
-        area(),
-        { 
-            health: 100,
-            canShoot: true,
-            shootCooldown: 0.5,  // Half second between shots
-            lastShot: 0
-        }
-    ]);
-    // Shooting controls
-    let abyss = add([  
-        //X: 416, Y: 329
-        rect(20, 20),
-        pos(width()/2 + 230,height()/2 - 230), 
-        color(0,0,0), 
-        opacity(0),
-        area(),
-        "abyss"
-    ])
-    
-       
-    onCollide("player", "abyss", ()=>{
-        let txt = add([
-            text("the abyss gazes into your heart...will you gaze back?", 5)
-        ])
-        wait(3, () => {
-            destroy(txt);    
-        });
-    })
-onKeyPress("space", () => {
-    const player = get("player")[0];
-    if (player && player.canShoot && time() - player.lastShot >= player.shootCooldown) {
-        player.lastShot = time();
-        
-        // Create bullet
-        const bullet = add([
-            "bullet",
-            sprite("Bullet"),
-            pos(player.pos),
-            anchor("center"),
-            scale(0.3),
-            area(),
-            {
-                speed: 600,
-                damage: 10,
-                direction: vec2(0, -1)  // Default upward direction
-            }
-        ]);
-        
-        // Set direction based on player's facing
-        if (player.flipX) {
-            bullet.direction = vec2(1, 0);  // Right
-        } else {
-            bullet.direction = vec2(-1, 0); // Left
-        }
-        
-        // Move bullet
-        bullet.onUpdate(() => {
-            bullet.move(bullet.direction.scale(bullet.speed));
-            
-            // Remove if off-screen
-            if (bullet.pos.x < 0 || bullet.pos.x > width() || 
-                bullet.pos.y < 0 || bullet.pos.y > height()) {
-                destroy(bullet);
-            }
-        });
-        
-        play("gShot", { volume: 0.3 });
-        wait(1, () => {
-            play("gLoad", { volume: 0.3 });
-        });
-    }
-});
-    // Bullet collision with Tans
-onCollide("bullet", "T", (bullet, tans) => {
-    destroy(bullet);
-    tans.health -= bullet.damage;
-
-    
-    // Check if defeated
-    if (tans.health <= 0) {
-        destroy(tans);
-        destroy(tansHealthBarBg);
-        destroy(tansHealthBar);
-        music.stop();
-        go("victory");  
-    }
-});
-
-// Bullet collision with tables
-
-    const SPEED = 400;  
-    let mult = Math.random() * 2 - 1;
-  
-    function updateMultiplier() {
-        mult = Math.random() * 2 - 1;
-        if (mult === 0) {   
-            mult = 0.5;
-        }
-    }
->>>>>>> 2d5ab97a3d00ddb39ddde2b3cb1c64b569b9f9d9
 
     const directions = { right: vec2(1, 0), left: vec2(-1, 0), up: vec2(0, -1), down: vec2(0, 1) };
 
@@ -432,7 +249,6 @@ scene("gameover", () => {
 
 scene("start", () => {
     onTouchStart(() => kaboom.resumeAudioContext());
-<<<<<<< HEAD
     onTouchMove((pos) => { Player.pos = pos; });
     const sMusic = play("sMusic", { volume: 1, loop: true });
     add([rect(GAME_WIDTH, GAME_HEIGHT), color(0, 1, 1)]);
@@ -440,46 +256,6 @@ scene("start", () => {
     add([text('Press the space key to start. or Enter to raise difficulty', 10, { width: GAME_WIDTH - 50 }), anchor("center"), pos(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 40)]);
     onUpdate(() => { if (isKeyPressed("space")) { sMusic.stop(); go("easy"); } });
     onUpdate(() => { if (isKeyPressed("enter")) { sMusic.stop(); go("hard"); } });
-=======
-    onTouchMove((pos) => {
-        Player.pos = pos;
-    });
-    
-    const sMusic = play("sMusic", {
-        volume: 1,
-        loop: true
-    })
-    add([
-        rect(width(), height()),  
-        color(0, 1, 1)
-    ]);
-    add([
-        text('KillMath', 16),
-        anchor("center"), 
-        pos(width() / 2, height() / 2 - 75) 
-    ]);
-    add([
-        text('Press the space key to start. or Enter to raise difficulty', 5,{ 
-            width: width() - 2,
-        }),
-        anchor("center"),
-        pos(width() / 2 - 30, (height() / 2) + 40),  
-        color(128,128,128)   
-    ]);
-
-    onUpdate(() => {
-        if (isKeyPressed("space")) {
-            sMusic.stop()
-            go("easy"); 
-        }
-    });
-    onUpdate(() => {
-        if (isKeyPressed("enter")) {
-            sMusic.stop()
-            go("hard");  
-        }
-    })
->>>>>>> 2d5ab97a3d00ddb39ddde2b3cb1c64b569b9f9d9
 });
 
 scene("victory", () => {
@@ -493,61 +269,7 @@ scene("victory", () => {
     onKeyPress("space", () => { vMusic.stop(); go("start"); });
 });
 
-<<<<<<< HEAD
 go("start");
 mouseClick(() => { kaboom.resumeAudioContext(); });
 onUpdate(() => { console.log("Current Scene: ", getCurrentScene()); });
 onUpdate(() => { if (isKeyPressed("space")) go("easy"); });
-=======
-    ])
-    Ata.onUpdate(() => {
-        Ata.scale = vec2(1 + Math.sin(time() * 5) * 0.05);
-    });
-    add([
-        
-            rect(width(), height()),
-            pos(0, 0),         
-            color(rgb(0, 200, 0)),  
-            z(-1)              
-        
-    ]);
-    
-    const victoryText = add([
-        text('Victory!', 32),
-        anchor("center"),
-        pos(width() / 2, height() / 2 - 50),
-        color(rgb(255,255,255))
-    ]);
-    
-    victoryText.onUpdate(() => {
-        victoryText.scale = vec2(1 + Math.sin(time() * 5) * 0.05);
-    });
-    
-    add([
-        text('Press space to play again', 16),
-        anchor("center"),
-        pos(width() / 2, height() / 2 + 50),
-        color(0, 0, 0)
-    ]);
-    
-    onKeyPress("space", () => {
-        vMusic.stop(),
-        go("start")
-    });
-}); 
-go("start");   
-
-mouseClick(() => { 
-    kaboom.resumeAudioContext();
-})
-onUpdate(() => {
-    console.log("Current Scene: ", getCurrentScene());
-});
-onUpdate(() => {
-    console.log("Checking if space is pressed");
-    if (isKeyPressed("space")) {
-        console.log("Space pressed, going to easy scene");
-        go("easy");  
-    }
-});         
->>>>>>> 2d5ab97a3d00ddb39ddde2b3cb1c64b569b9f9d9
